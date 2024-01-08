@@ -1,2 +1,2 @@
 all:
-	cc -fms-extensions test3.c
+	cc -fms-extensions -Wno-microsoft-anon-tag main.c

@@ -1,18 +1,8 @@
 #include <stdbool.h>
 #include <stdio.h>
-
-
-/*
-
-	TODO :
-		- Remove 'Optional' // for each with 2 args or other way ... done
-		- public/private --> no
-		- if one args. count arg to perform replacement using macros for extends ... done
-
-*/
+#include <string.h>
 
 void *g_this = NULL;
-
 void	*_assign_instance(void *i)
 {
 	g_this = i;
@@ -20,7 +10,6 @@ void	*_assign_instance(void *i)
 }
 
 #define _(X) ((typeof(X)) _assign_instance(X))
-
 #define CONCAT_IMPL(x, y) x ## y
 #define CONCAT(x, y) CONCAT_IMPL(x, y)
 #define CALL(NAME, ...) NAME(__VA_ARGS__)
@@ -53,7 +42,6 @@ void	*_assign_instance(void *i)
 #define IF_ARGS_0(X)
 #define IF_ARGS(ARGS, EXPR) CALL(CALL(CONCAT, IF_ARGS_, CALL(COUNT_ARGS, EXPAND(UNPACK ARGS))), EXPR)
 
-#include <string.h>
 
 #define class(...) _class(__VA_ARGS__)
 #define _class(class_name, parent_class_name, properties, ...) \
@@ -80,88 +68,19 @@ void	*_assign_instance(void *i)
     ret_type (*name) args;
 
 #define METHOD_IMPL(class_name, method_def)\
-	EXPAND(CALL(METHOD_IMPL_, class_name, UNPACK(EXPAND(UNPACK method_def))))\
-
+	EXPAND(CALL(METHOD_IMPL_, class_name, UNPACK(EXPAND(UNPACK method_def))))
 #define METHOD_IMPL_(class_name, ret_type, name, args, ...)\
     ret_type name args\
 	{\
 		class_name *this = g_this;\
 		__VA_ARGS__\
 	}
+
 #define METHOD_SET(method_def) \
     EXPAND(METHOD_SET_ method_def)
 #define METHOD_SET_(ret_type, name, args, ...) \
     instance.name = name;
-
-
-
-/////////////
-#define public struct
-#define private struct
-/*
-
-	class (Type,
-		public {
-
-		}
-
-		private {
-
-		}
-	)
-
-*/
-
 #define extends ,
 
 
 /////
-
-class (Foo,, {
-		int	z;
-	},
-	(void, dopo, (),
-		printf("%d\n", this->z);
-	)
-)
-
-class (Base extends Foo,
-	{
-		int y;
-	},
-	(void, doo, (),
-		printf("%i\n", this->y);
-	)
-)
-
-class (Optional extends Base,
-    {
-        int 	data;
-        bool 	empty;
-    },
-    (void, setData, (int data),
-        this->data = data;
-        this->empty = false;
-    ),
-    (void, clear, (),
-        this->data = 0;
-        this->empty = true;
-    )
-)
-
-// Example usage
-int main() {
-    Optional opt = Optional_construct();
-
-
-	_(&opt)->setData(42);
-    printf("Data: %d, Empty: %d\n", opt.data, opt.empty);
-    opt.clear();
-    printf("Data: %d, Empty: %d\n", opt.data, opt.empty);
-	opt.y = 6;
-	opt.z = 3;
-	opt.doo();
-	opt.dopo();
-
-    return 0;
-}
