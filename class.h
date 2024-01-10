@@ -10,8 +10,20 @@ void	*_assign_instance(void *i)
 }
 
 #define _(X) ((typeof(X)) _assign_instance(X))
-#define CONCAT_IMPL(x, y) x ## y
-#define CONCAT(x, y) CONCAT_IMPL(x, y)
+
+#define CONCATENATE(arg1, arg2)   CONCATENATE1(arg1, arg2)
+#define CONCATENATE1(arg1, arg2)  CONCATENATE2(arg1, arg2)
+#define CONCATENATE2(arg1, arg2)  CONCATENATE3(arg1, arg2)
+#define CONCATENATE3(arg1, arg2)  CONCATENATE4(arg1, arg2)
+#define CONCATENATE4(arg1, arg2)  CONCATENATE5(arg1, arg2)
+#define CONCATENATE5(arg1, arg2)  CONCATENATE6(arg1, arg2)
+#define CONCATENATE6(arg1, arg2)  CONCATENATE7(arg1, arg2)
+#define CONCATENATE7(arg1, arg2)  CONCATENATE8(arg1, arg2)
+#define CONCATENATE8(arg1, arg2)  CONCATENATE9(arg1, arg2)
+#define CONCATENATE9(arg1, arg2)  CONCATENATE10(arg1, arg2)
+#define CONCATENATE10(arg1, arg2) arg1##arg2
+
+
 #define CALL(NAME, ...) NAME(__VA_ARGS__)
 #define EXPAND(X) X
 #define UNPACK(...) __VA_ARGS__
@@ -25,7 +37,7 @@ void	*_assign_instance(void *i)
 #define FOR_EACH_NARG_(...) EXPAND(FOR_EACH_ARG_N(__VA_ARGS__))
 #define FOR_EACH_ARG_N(_1, _2, _3, _4, _5, N, ...) N
 #define FOR_EACH_RSEQ_N() 5, 4, 3, 2, 1
-#define FOR_EACH_(N, what, ...) EXPAND(CONCAT(FOR_EACH_, N)(what, __VA_ARGS__))
+#define FOR_EACH_(N, what, ...) EXPAND(CONCATENATE(FOR_EACH_, N)(what, __VA_ARGS__))
 #define FOR_EACH(what, ...) FOR_EACH_(FOR_EACH_NARG(__VA_ARGS__), what, __VA_ARGS__)
 
 #define FOR_EACH2_1(what, extra_arg, x) what(extra_arg, x)
@@ -33,14 +45,14 @@ void	*_assign_instance(void *i)
 #define FOR_EACH2_3(what, extra_arg, x, ...) EXPAND(what(extra_arg, x)) EXPAND(FOR_EACH2_2(what, extra_arg, __VA_ARGS__))
 #define FOR_EACH2_4(what, extra_arg, x, ...) what(extra_arg, x) EXPAND(FOR_EACH2_3(what, extra_arg, __VA_ARGS__))
 #define FOR_EACH2_5(what, extra_arg, x, ...) what(extra_arg, x) EXPAND(FOR_EACH2_4(what, extra_arg, __VA_ARGS__))
-#define FOR_EACH2_(N, what, extra_arg, ...) EXPAND(CONCAT(FOR_EACH2_, N)(what, extra_arg, __VA_ARGS__))
+#define FOR_EACH2_(N, what, extra_arg, ...) EXPAND(CONCATENATE(FOR_EACH2_, N)(what, extra_arg, __VA_ARGS__))
 #define FOR_EACH2(what, extra_arg, ...) FOR_EACH2_(FOR_EACH_NARG(__VA_ARGS__), what, extra_arg, __VA_ARGS__)
 
 #define COUNT_ARGS_HELPER(_0, _1, _2, _3, _4, _5, N, ...) N
 #define COUNT_ARGS(...) COUNT_ARGS_HELPER(dummy, ##__VA_ARGS__, 5, 4, 3, 2, 1, 0)
-#define IF_ARGS_1(X) X
-#define IF_ARGS_0(X)
-#define IF_ARGS(ARGS, EXPR) CALL(CALL(CONCAT, IF_ARGS_, CALL(COUNT_ARGS, EXPAND(UNPACK ARGS))), EXPR)
+#define IF_ARGS_1(...) __VA_ARGS__
+#define IF_ARGS_0(...)
+#define IF_ARGS(ARGS, ...) CALL(CALL(CONCATENATE, IF_ARGS_, COUNT_ARGS ARGS), __VA_ARGS__)
 
 
 
@@ -66,7 +78,7 @@ void	*_assign_instance(void *i)
 			typeof(parent_class_name ## _construct) * __parent_constructor = & parent_class_name ## _construct;\
 			parent_class_name parent;\
 		);\
-       FOR_EACH(METHOD_SET, __VA_ARGS__) \
+       FOR_EACH2(METHOD_SET, class_name, __VA_ARGS__) \
 	   class_name *this = &instance;\
 	   CALL(REST_ARGS, UNPACK constructor)\
 	   IF_ARGS((parent_class_name), \
@@ -79,19 +91,36 @@ void	*_assign_instance(void *i)
 #define METHOD_PROTO_(ret_type, name, args, ...) \
     ret_type (*name) args;
 
+#define COMMA_0
+#define COMMA_1 ,
+#define COMMA_2 ,
+#define COMMA_3 ,
+#define COMMA_4 ,
+#define COMMA_5 ,
+
+
+
+#define MERGE_ARGS(first, ...)\
+	first CONCATENATE(COMMA_, COUNT_ARGS(__VA_ARGS__)) __VA_ARGS__
+
 #define METHOD_IMPL(class_name, method_def)\
 	EXPAND(CALL(METHOD_IMPL_, class_name, UNPACK(EXPAND(UNPACK method_def))))
 #define METHOD_IMPL_(class_name, ret_type, name, args, ...)\
-    ret_type name args\
+    ret_type class_name ## _ ## name args\
 	{\
-		class_name *this = g_this;\
+		class_name *this;\
+		__VA_ARGS__\
+	}\
+    ret_type class_name ## _internal_ ## name (MERGE_ARGS (class_name *this, UNPACK args))\
+	{\
 		__VA_ARGS__\
 	}
 
-#define METHOD_SET(method_def) \
-    EXPAND(METHOD_SET_ method_def)
-#define METHOD_SET_(ret_type, name, args, ...) \
-    instance.name = name;
+#define METHOD_SET(class_name, method_def) \
+	EXPAND(CALL(METHOD_SET_, class_name, UNPACK(EXPAND(UNPACK method_def))))
+
+#define METHOD_SET_(class_name, ret_type, name, args, ...) \
+    instance.name = class_name ## _ ## name;
 #define extends ,
 
 

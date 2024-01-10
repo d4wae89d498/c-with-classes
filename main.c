@@ -50,7 +50,6 @@ int main() {
 
 	_(&opt)->setData(42);
 
-	typeof(Optional_construct) *foo = &Optional_construct;
 
     printf("Data: %d, Empty: %d\n", opt.data, opt.empty);
     opt.clear();
@@ -58,6 +57,7 @@ int main() {
 	opt.y = 6;
 	opt.z = 3;
 	opt.doo();
+
 
 	printf("%i", opt.p);
 	//opt.dopo();
