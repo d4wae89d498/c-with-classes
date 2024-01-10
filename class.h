@@ -97,10 +97,11 @@ void	*_assign_instance(void *i)
 
 #define METHOD_IMPL(class_name, method_def)\
 	EXPAND(CALL(METHOD_IMPL_, class_name, UNPACK(EXPAND(UNPACK method_def))))
+
 #define METHOD_IMPL_(class_name, ret_type, name, args, ...)\
     ret_type class_name ## _ ## name args\
 	{\
-		class_name *this;\
+		class_name *this = g_this;\
 		__VA_ARGS__\
 	}\
     ret_type class_name ## _internal_ ## name (MERGE_ARGS (class_name *this, UNPACK args))\
@@ -117,11 +118,13 @@ void	*_assign_instance(void *i)
 
 #define as ,
 #define _with(constructor, var, ...)\
+	{\
 	typeof(constructor) var = constructor;\
 	prev_ptr = g_this;\
 	_(&var);\
 	__VA_ARGS__\
-	g_this = prev_ptr;
+	g_this = prev_ptr;\
+	}
 
 #define with(...)\
 	_with(__VA_ARGS__)

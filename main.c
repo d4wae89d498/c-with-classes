@@ -19,7 +19,7 @@ class (Base extends Foo,
 		printf("Base constructed with %i!\n", x);
 	),
 	(void, doo, (),
-		printf("%i\n", this->y);
+		printf("doo() %i\n", this->y);
 	)
 )
 
@@ -51,6 +51,7 @@ int main() {
 		opt.z = 3;
 		opt.doo();
 		with (Optional_construct(4) as file,
+			file.y = 85;
 			file.doo();
 		)
 		opt.doo();
