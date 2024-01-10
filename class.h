@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
-void *prev_ptr = NULL;
-void *g_this = NULL;
+__thread void *prev_ptr = NULL;
+__thread void *g_this = NULL;
 void	*_assign_instance(void *i)
 {
 	g_this = i;
