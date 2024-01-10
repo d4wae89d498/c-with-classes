@@ -44,23 +44,18 @@ class (Optional extends Base,
     )
 )
 
-// Example usage
 int main() {
-    Optional opt = Optional_construct(71);
-
-	_(&opt)->setData(42);
-
-
-    printf("Data: %d, Empty: %d\n", opt.data, opt.empty);
-    opt.clear();
-    printf("Data: %d, Empty: %d\n", opt.data, opt.empty);
-	opt.y = 6;
-	opt.z = 3;
-	opt.doo();
-
-
-	printf("%i", opt.p);
-	//opt.dopo();
-
+    with (Optional_construct(71) as opt,
+		opt.clear();
+		opt.y = 6;
+		opt.z = 3;
+		opt.doo();
+		with (Optional_construct(4) as file,
+			file.doo();
+		)
+		opt.doo();
+	)
     return 0;
 }
+
+

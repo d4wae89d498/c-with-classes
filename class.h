@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
+void *prev_ptr = NULL;
 void *g_this = NULL;
 void	*_assign_instance(void *i)
 {
@@ -9,19 +10,11 @@ void	*_assign_instance(void *i)
 	return i;
 }
 
-#define _(X) ((typeof(X)) _assign_instance(X))
+#define _(X) ((void) ((typeof(X)) _assign_instance(X)))
 
 #define CONCATENATE(arg1, arg2)   CONCATENATE1(arg1, arg2)
 #define CONCATENATE1(arg1, arg2)  CONCATENATE2(arg1, arg2)
-#define CONCATENATE2(arg1, arg2)  CONCATENATE3(arg1, arg2)
-#define CONCATENATE3(arg1, arg2)  CONCATENATE4(arg1, arg2)
-#define CONCATENATE4(arg1, arg2)  CONCATENATE5(arg1, arg2)
-#define CONCATENATE5(arg1, arg2)  CONCATENATE6(arg1, arg2)
-#define CONCATENATE6(arg1, arg2)  CONCATENATE7(arg1, arg2)
-#define CONCATENATE7(arg1, arg2)  CONCATENATE8(arg1, arg2)
-#define CONCATENATE8(arg1, arg2)  CONCATENATE9(arg1, arg2)
-#define CONCATENATE9(arg1, arg2)  CONCATENATE10(arg1, arg2)
-#define CONCATENATE10(arg1, arg2) arg1##arg2
+#define CONCATENATE2(arg1, arg2) arg1##arg2
 
 
 #define CALL(NAME, ...) NAME(__VA_ARGS__)
@@ -91,15 +84,14 @@ void	*_assign_instance(void *i)
 #define METHOD_PROTO_(ret_type, name, args, ...) \
     ret_type (*name) args;
 
+// TODO : better abstraction and naming for MERGE_ARGS
+
 #define COMMA_0
 #define COMMA_1 ,
 #define COMMA_2 ,
 #define COMMA_3 ,
 #define COMMA_4 ,
 #define COMMA_5 ,
-
-
-
 #define MERGE_ARGS(first, ...)\
 	first CONCATENATE(COMMA_, COUNT_ARGS(__VA_ARGS__)) __VA_ARGS__
 
@@ -123,5 +115,15 @@ void	*_assign_instance(void *i)
     instance.name = class_name ## _ ## name;
 #define extends ,
 
+#define as ,
+#define _with(constructor, var, ...)\
+	typeof(constructor) var = constructor;\
+	prev_ptr = g_this;\
+	_(&var);\
+	__VA_ARGS__\
+	g_this = prev_ptr;
+
+#define with(...)\
+	_with(__VA_ARGS__)
 
 /////
