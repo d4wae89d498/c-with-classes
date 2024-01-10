@@ -27,8 +27,10 @@ class (Optional extends Base,
     {
         int 	data;
         bool 	empty;
+		int 	p;
     },
-	((),
+	((int p),
+		this->p = p;
 		printf("Optional constructed!\n");
 		super(4);
 	),
@@ -44,7 +46,7 @@ class (Optional extends Base,
 
 // Example usage
 int main() {
-    Optional opt = Optional_construct();
+    Optional opt = Optional_construct(71);
 
 	_(&opt)->setData(42);
 
@@ -56,6 +58,8 @@ int main() {
 	opt.y = 6;
 	opt.z = 3;
 	opt.doo();
+
+	printf("%i", opt.p);
 	//opt.dopo();
 
     return 0;
