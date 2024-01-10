@@ -1,0 +1,24 @@
+{
+	"files.associations": {
+		"__hash_table": "c",
+		"__split_buffer": "c",
+		"atomic": "c",
+		"deque": "c",
+		"ios": "c",
+		"string": "c",
+		"system_error": "c",
+		"unordered_map": "c",
+		"vector": "c",
+		"*.tcc": "c",
+		"stdarg.h": "c",
+		"array": "c",
+		"span": "c",
+		"string_view": "c",
+		"random": "c",
+		"typeinfo": "c",
+		"chrono": "c",
+		"__node_handle": "c",
+		"queue": "c",
+		"type_traits": "c"
+	}
+}

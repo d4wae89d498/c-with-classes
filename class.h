@@ -43,8 +43,16 @@ void	*_assign_instance(void *i)
 #define IF_ARGS(ARGS, EXPR) CALL(CALL(CONCAT, IF_ARGS_, CALL(COUNT_ARGS, EXPAND(UNPACK ARGS))), EXPR)
 
 
+
+#define FIRST_ARG(X, ...) X
+#define REST_ARGS(X, ...) __VA_ARGS__
+
 #define class(...) _class(__VA_ARGS__)
-#define _class(class_name, parent_class_name, properties, ...) \
+
+#define super(...)\
+	(parent = __parent_constructor(__VA_ARGS__))
+
+#define _class(class_name, parent_class_name, properties, constructor, ...) \
     typedef struct class_name class_name; \
 	struct  class_name {\
 			IF_ARGS((parent_class_name), struct parent_class_name;)\
@@ -52,14 +60,18 @@ void	*_assign_instance(void *i)
 			FOR_EACH(METHOD_PROTO, __VA_ARGS__) \
 	}; \
 	FOR_EACH2(METHOD_IMPL, class_name, __VA_ARGS__)\
-    class_name class_name##_construct(){ \
+    class_name class_name##_construct CALL(FIRST_ARG, UNPACK constructor) { \
 		class_name instance;\
 		IF_ARGS((parent_class_name), \
-			parent_class_name parent = parent_class_name ## _construct();\
-			memcpy(&instance, &parent, sizeof(parent_class_name));\
+			typeof(parent_class_name ## _construct) * __parent_constructor = & parent_class_name ## _construct;\
+			parent_class_name parent;\
 		);\
        FOR_EACH(METHOD_SET, __VA_ARGS__) \
-	   /* if one args. set parent method. */ \
+	   class_name *this = &instance;\
+	   CALL(REST_ARGS, UNPACK constructor)\
+	   IF_ARGS((parent_class_name), \
+			memcpy(&instance, &parent, sizeof(parent_class_name));\
+		);\
 	   return instance;\
     }
 #define METHOD_PROTO(method_def) \
