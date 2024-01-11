@@ -47,16 +47,14 @@ class (Optional extends Base,
 int main() {
     with (Optional_construct(71) as opt,
 		opt.clear();
-		opt.y = 6;
-		opt.z = 3;
-		opt.doo();
+		opt.parent.y = 6;
+		opt.parent.parent.z = 3;
+		opt.parent.doo();
 		with (Optional_construct(4) as file,
-			file.y = 85;
-			file.doo();
+			file.parent.y = 85;
+			file.parent.doo();
 		)
-		opt.doo();
+		opt.parent.doo();
 	)
     return 0;
 }
-
-

@@ -1,5 +1,6 @@
 {
 	"files.associations": {
+		"*.c": "objective-c",
 		"__hash_table": "c",
 		"__split_buffer": "c",
 		"atomic": "c",
@@ -19,6 +20,7 @@
 		"chrono": "c",
 		"__node_handle": "c",
 		"queue": "c",
-		"type_traits": "c"
+		"type_traits": "c",
+		"bitset": "cpp"
 	}
 }
