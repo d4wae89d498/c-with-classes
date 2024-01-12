@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <Block.h>
+
 __thread void *prev_ptr = NULL;
 __thread void *g_this = NULL;
 void	*_assign_instance(void *i)
@@ -12,7 +14,6 @@ void	*_assign_instance(void *i)
 }
 
 #define auto __auto_type
-#define _(X) ((void) ((typeof(X)) _assign_instance(X)))
 
 #define CONCATENATE(arg1, arg2)   CONCATENATE1(arg1, arg2)
 #define CONCATENATE1(arg1, arg2)  CONCATENATE2(arg1, arg2)
@@ -59,6 +60,11 @@ void	*_assign_instance(void *i)
 #define super(...)\
 	(parent = __parent_constructor(__VA_ARGS__))
 
+#define STR(X) #X
+
+__thread void	*g_root = NULL;
+
+// TODO : better constructors. Handle cases like useless alloc for parents, and other class construct in constructors
 #define _class(class_name, parent_class_name, properties, constructor, ...) \
     typedef struct class_name class_name; \
 	struct  class_name {\
@@ -67,7 +73,7 @@ void	*_assign_instance(void *i)
 			FOR_EACH(METHOD_PROTO, __VA_ARGS__) \
 	}; \
     class_name *class_name##_construct CALL(FIRST_ARG, UNPACK constructor) { \
-		__block class_name *this = malloc(sizeof(class_name));\
+		__block class_name * this = malloc(sizeof(class_name));\
 		IF_ARGS((parent_class_name), \
 			typeof(parent_class_name ## _construct) * __parent_constructor = & parent_class_name ## _construct;\
 			parent_class_name *parent;\
@@ -75,6 +81,7 @@ void	*_assign_instance(void *i)
        FOR_EACH(METHOD_SET, __VA_ARGS__) \
 	   CALL(REST_ARGS, UNPACK constructor)\
 	   IF_ARGS((parent_class_name), \
+	   		printf("parent copied from %s (%p) to %s (%p)\n", STR(parent_class_name), this, STR(class_name), parent);\
 			memcpy(this, parent, sizeof(parent_class_name));\
 		);\
 	   return this;\
@@ -101,22 +108,10 @@ void	*_assign_instance(void *i)
 	EXPAND(CALL(METHOD_SET_, UNPACK(EXPAND(UNPACK method_def))))
 
 #define METHOD_SET_(ret_type, name, args, ...) \
-    this->name = ^ ret_type args {\
+    this->name = Block_copy(^ ret_type args {\
 		__VA_ARGS__\
-	};
+	});
 #define extends ,
 
-#define as ,
-#define _with(constructor, var, ...)\
-	{\
-	typeof(constructor) var = constructor;\
-	prev_ptr = g_this;\
-	_(&var);\
-	__VA_ARGS__\
-	g_this = prev_ptr;\
-	}
-
-#define with(...)\
-	_with(__VA_ARGS__)
 
 /////

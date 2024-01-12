@@ -3,11 +3,12 @@
 class (Foo,, {
 		int	z;
 	},
-	((),
-		printf("Foo constructed!\n");
+	((int x),
+		printf("Foo constructed! (%i)\n", x);
+		this->z = x;
 	),
-	(void, dopo, (),
-		printf("%d\n", this->z);
+	(void, dumpZ, (),
+		printf("this->z %i\n", this->z);
 	)
 )
 
@@ -16,44 +17,38 @@ class (Base extends Foo,
 		int y;
 	},
 	((int x),
-		printf("Base constructed with %i!\n", x);
+		printf("Base constructed with %i %p!\n", x, this);
 		this->y = x;
-		super();
+		super(2 * x);
 	),
-	(void, doo, (),
-		printf("doo() %i\n", this->y);
+	(void, dumpY, (),
+		printf("this->y %i\n", this->y);
 	)
 )
 
 class (Optional extends Base,
-    {
-        int 	data;
-        bool 	empty;
-		int 	p;
-    },
-	((int p),
-	//	this->p = p;
-		printf("Optional constructed!\n");
-		auto x = super(4);
-		printf("parent_y = %i\n", x->y);
+	{
+		int x;
+	},
+	((int x),
+		printf("Base constructed with %i %p!\n", x, this);
+		this->x = x;
+		super(2 * x);
 	),
-    (void, setData, (int data),
-        this->data = data;
-        this->empty = false;
-    ),
-    (void, clear, (),
-        this->data = 0;
-        this->empty = true;
-    )
+	(void, dumpX, (),
+		printf("this->x %i\n", this->x);
+	)
 )
 
-int main() {
 
+int main() {
 	auto x = Optional_construct(8);
 
-	x->doo();
-	auto y = Foo_construct();
+	x->dumpX();
 
-	auto z = Base_construct(2);
+	x->dumpY();
+
+	x->dumpZ();
+
     return 0;
 }
