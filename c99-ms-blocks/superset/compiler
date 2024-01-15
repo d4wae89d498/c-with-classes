@@ -1,0 +1,18 @@
+#!/bin/sh
+
+echo $@
+
+file=$(cat $1)
+cat > .a.out.c <<EOF
+
+#include "module.h"
+
+int main()
+{
+
+	$file
+}
+
+EOF
+
+cc -fms-extensions $2 .a.out.c

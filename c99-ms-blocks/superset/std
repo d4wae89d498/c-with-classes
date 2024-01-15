@@ -1,0 +1,6 @@
+
+#include "std.c"
+
+y += 1;
+
+export (x, y)
