@@ -1,0 +1,18 @@
+#!/bin/sh
+echo "Compilling [$@] ..."
+file=$(cat $2 | sed '1d')
+tmp_name=.tmp_$(uuidgen)
+cat > $tmp_name.c <<EOF
+#include "module.h"
+int main(int argc, char	**argv)
+{GC_INIT();
+#line 1 "$2"
+$file
+}
+EOF
+cc -fms-extensions -Wno-microsoft-anon-tag -lgc $(sed -e 's/^"//' -e 's/"$//' <<<"$1") $tmp_name.c -o $tmp_name.out && echo "done " && echo "________" && \
+shift && \
+shift && \
+rm $tmp_name.c && \
+./$tmp_name.out $@ && \
+rm $tmp_name.out
